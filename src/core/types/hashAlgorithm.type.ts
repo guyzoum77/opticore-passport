@@ -1,0 +1,1 @@
+export type HashAlgorithmType = "sha256" | "sha512" | "sha3-256" | "sha3-512" | "blake2b512" | "bcrypt" | "scrypt" | "argon2";

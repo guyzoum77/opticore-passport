@@ -10,12 +10,12 @@ export class PassportAuthentication {
         this.publicRSAKeyPair = publicRSAKey
     }
 
-    public initializeLocalStrategyAuth(fetchUserByEmail: (email: string) => Promise<any>, email: string,
+    public initializeLocalStrategyAuthWithEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                        hashedPassword: string, done: any, salt: any, plainPassword: any,
                                        algorithmHash: any, iteration: number, keyLength: number,
                                        encode: BufferEncoding | undefined) {
         const passportStr: PassportStrategy = new PassportStrategy(this.hashingService, this.publicRSAKeyPair);
-        passportStr.useLocalStrategy(
+        passportStr.useLocalStrategyByEmail(
             fetchUserByEmail,
             email,
             hashedPassword,

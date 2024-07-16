@@ -8,6 +8,7 @@ import {Strategy as LocalStrategy} from "passport-local";
 import {Strategy as JwtStr, StrategyOptions, ExtractJwt, StrategyOptionsWithSecret} from 'passport-jwt';
 import {VerifyLocalStrategyInterface} from "../interfaces/verifyLocalStrategy.interface";
 import {PassportJWTStrategyUse} from "../guards/passportJWTStrategy.use.guard";
+import {HashAlgorithmType} from "../types/hashAlgorithm.type";
 
 
 
@@ -36,7 +37,7 @@ export class PassportStrategy {
      * @protected
      */
     protected async verifyHashPassword(hashedPassword: string, salt: any, plainPassword: any,
-                                   algorithmHash: any, iteration: number, keyLength: number,
+                                   algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                    encode: BufferEncoding | undefined): Promise<boolean> {
         return await this.hashingService.verifyHashPassword(
             hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode
@@ -71,7 +72,7 @@ export class PassportStrategy {
      */
     public async validateLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                               hashedPassword: string, done: any, salt: any, plainPassword: any,
-                                              algorithmHash: any, iteration: number, keyLength: number,
+                                              algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                               encode: BufferEncoding | undefined): Promise<any> {
         await fetchUserByEmail(email).then(async(user: any): Promise<any> => {
             if (!user) {
@@ -89,7 +90,7 @@ export class PassportStrategy {
 
     public async validateLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>, username: string,
                                                  hashedPassword: string, done: any, salt: any, plainPassword: any,
-                                                 algorithmHash: any, iteration: number, keyLength: number,
+                                                 algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                                  encode: BufferEncoding | undefined): Promise<any> {
         await fetchUserByUsername(username).then(async(item: any): Promise<any> => {
             if (!item) {
@@ -121,7 +122,7 @@ export class PassportStrategy {
      */
     public async validateJwtStrategy(fetchIUserById: (userId: string) => Promise<any>, payload: JwtPayload, done: any,
                                      hashedPassword: string, salt: any, plainPassword: any,
-                                     algorithmHash: any, iteration: number, keyLength: number,
+                                     algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                      encode: BufferEncoding | undefined): Promise<any> {
         const statusNotFound: number = constants.HTTP_STATUS_NOT_FOUND
         try {
@@ -160,7 +161,7 @@ export class PassportStrategy {
      */
     public async useLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                   hashedPassword: string, done: any, salt: any, plainPassword: any,
-                                  algorithmHash: any, iteration: number, keyLength: number,
+                                  algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                   encode: BufferEncoding | undefined) {
         return PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
@@ -200,7 +201,7 @@ export class PassportStrategy {
      */
     public async useLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>, username: string,
                                          hashedPassword: string, done: any, salt: any, plainPassword: any,
-                                         algorithmHash: any, iteration: number, keyLength: number,
+                                         algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                          encode: BufferEncoding | undefined) {
         return PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
@@ -245,7 +246,7 @@ export class PassportStrategy {
                                 hashedPassword: string,
                                 salt: any,
                                 plainPassword: any,
-                                algorithmHash: any,
+                                algorithmHash: HashAlgorithmType,
                                 iteration: number,
                                 keyLength: number,
                                 encode: (BufferEncoding | undefined)) {
