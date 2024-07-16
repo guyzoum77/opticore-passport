@@ -5,7 +5,7 @@ import {HashPasswordService} from "opticore-hashing-password";
 import {JwtPayload} from "jsonwebtoken";
 import {PassportLocalStrategyUse} from "../guards/passportLocalStrategy.use.guard";
 import {Strategy as LocalStrategy} from "passport-local";
-import {Strategy as JwtStr, StrategyOptions, ExtractJwt} from 'passport-jwt';
+import {Strategy as JwtStr, StrategyOptions, ExtractJwt, StrategyOptionsWithSecret} from 'passport-jwt';
 import {VerifyLocalStrategyInterface} from "../interfaces/verifyLocalStrategy.interface";
 import {PassportJWTStrategyUse} from "../guards/passportJWTStrategy.use.guard";
 
@@ -14,7 +14,7 @@ import {PassportJWTStrategyUse} from "../guards/passportJWTStrategy.use.guard";
 /**
  *
  */
-export class Passport {
+export class PassportStrategy {
     public hashingService: HashPasswordService = new HashPasswordService();
     public errorCode: number = constants.HTTP_STATUS_BAD_REQUEST;
     public publicRSAKeyPair: string;
@@ -50,7 +50,7 @@ export class Passport {
      * @param done
      * @protected
      */
-    protected catchError(err: any, actionTitle, done: any) {
+    protected catchError(err: any, actionTitle: any, done: any) {
         log.errorSpecified(msg.passportError, actionTitle, err.name, err.code, "Error", err.message, this.errorCode);
         return done(null, false, { message: err.message });
     }
@@ -128,6 +128,20 @@ export class Passport {
     }
 
 
+    /**
+     * 
+     * @param fetchUserByEmail 
+     * @param email 
+     * @param hashedPassword 
+     * @param done 
+     * @param salt 
+     * @param plainPassword 
+     * @param algorithmHash 
+     * @param iteration 
+     * @param keyLength 
+     * @param encode 
+     * @returns 
+     */
     public async useLocalStrategy(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                   hashedPassword: string, done: any, salt: any, plainPassword: any,
                                   algorithmHash: any, iteration: number, keyLength: number,
@@ -154,7 +168,22 @@ export class Passport {
         );
     }
 
-    public async useJwtStrategy(fetchIUserById: (userId: string) => Promise<any>,
+
+    /**
+     * 
+     * @param fetchIUserById 
+     * @param payload 
+     * @param done 
+     * @param hashedPassword 
+     * @param salt 
+     * @param plainPassword 
+     * @param algorithmHash 
+     * @param iteration 
+     * @param keyLength 
+     * @param encode 
+     * @returns 
+     */
+    public useJwtStrategy(fetchIUserById: (userId: string) => Promise<any>,
                                 payload: JwtPayload,
                                 done: any,
                                 hashedPassword: string,
@@ -164,25 +193,27 @@ export class Passport {
                                 iteration: number,
                                 keyLength: number,
                                 encode: (BufferEncoding | undefined)) {
-        return PassportJWTStrategyUse<JwtStr, StrategyOptions, (payload: JwtPayload, done: any) => Promise<JwtPayload>>(
-            "jwt",
+        return PassportJWTStrategyUse<JwtStr, StrategyOptionsWithSecret, (payload: JwtPayload, done: any) => Promise<JwtPayload>>(
+            "jwt", 
             JwtStr,
             {
                 jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-                secretOrKey: this.publicRSAKeyPair
+                secretOrKey: this.publicRSAKeyPair,
             },
-            await this.validateJwtStrategy(
-                fetchIUserById,
-                payload,
-                done,
-                hashedPassword,
-                salt,
-                plainPassword,
-                algorithmHash,
-                iteration,
-                keyLength,
-                encode
-            )
+            async (payload: JwtPayload, done: any) : Promise<any> => {
+                this.validateJwtStrategy(
+                    fetchIUserById,
+                    payload,
+                    done,
+                    hashedPassword,
+                    salt,
+                    plainPassword,
+                    algorithmHash,
+                    iteration,
+                    keyLength,
+                    encode
+                )
+            }
         );
     }
 }

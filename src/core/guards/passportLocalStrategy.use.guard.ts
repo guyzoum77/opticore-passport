@@ -18,5 +18,5 @@ export function PassportLocalStrategyUse<T extends Strategy, U, VerifyFunctionIn
         keyLength: number,
         encode: (BufferEncoding | undefined)
     ) => Promise<any>) {
-    return passport.use(name, new Strategy(params, callback));
+    passport.use(name, new Strategy(params, callback));
 }
