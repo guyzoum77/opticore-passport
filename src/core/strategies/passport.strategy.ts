@@ -79,7 +79,8 @@ export class PassportStrategy {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-            !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode)
+            const passwordVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            !passwordVerified
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, user); })();
         }).catch((err: any): void => {
@@ -116,7 +117,8 @@ export class PassportStrategy {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-            !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode)
+            const verifyPassword: boolean = !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            !verifyPassword
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, item); })();
         }).catch((err: any): void => {
@@ -161,7 +163,8 @@ export class PassportStrategy {
                 user = await fetchIUserById(payload.sub!);
             }
 
-            !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode)
+            const passVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            !passVerified
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, user); })();
         } catch (err: any) {
