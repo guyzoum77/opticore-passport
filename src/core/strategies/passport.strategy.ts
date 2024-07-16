@@ -49,14 +49,14 @@ export class PassportStrategy {
      * @param err
      * @param actionTitle
      * @param done
-     * @protected
      */
-    protected catchError(err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void): void {
+    protected catchError = (err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void): void => {
         log.errorSpecified(msg.passportError, actionTitle, err.name, err.code, "Error", err.message, this.errorCode);
         done(null, false, { message: err.message });
     }
 
-   
+
+
     /**
      * 
      * @param fetchUserByEmail 
@@ -70,10 +70,10 @@ export class PassportStrategy {
      * @param keyLength 
      * @param encode 
      */
-    public async validateLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
+    public validateLocalStrategyByEmail = async(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                               hashedPassword: string, done: (error: any, user?: any, info?: any) => void, salt: any, plainPassword: any,
                                               algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
-                                              encode: BufferEncoding | undefined): Promise<any> {
+                                              encode: BufferEncoding | undefined): Promise<any> => {
         await fetchUserByEmail(email).then(async(user: any): Promise<any> => {
             if (!user) {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
@@ -104,11 +104,17 @@ export class PassportStrategy {
      * @param keyLength
      * @param encode
      */
-    public async validateLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>, username: string,
-                                                 hashedPassword: string, done: (error: any, user?: any, info?: any) => void, salt: any, plainPassword: any,
-                                                 algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
-                                                 encode: BufferEncoding | undefined): Promise<any> {
-        await fetchUserByUsername(username).then(async(item: any): Promise<any> => {
+    public validateLocalStrategyByUsername = async (fetchUserByUsername: (username: string) => Promise<any>,
+                                                    username: string,
+                                                    hashedPassword: string,
+                                                    done: (error: any, user?: any, info?: any) => void,
+                                                    salt: any,
+                                                    plainPassword: any,
+                                                    algorithmHash: HashAlgorithmType,
+                                                    iteration: number,
+                                                    keyLength: number,
+                                                    encode: BufferEncoding | undefined) => {
+        return await fetchUserByUsername(username).then(async(item: any): Promise<any> => {
             if (!item) {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
@@ -139,11 +145,11 @@ export class PassportStrategy {
      * @param keyLength
      * @param encode
      */
-    public async validateJwtStrategy(fetchIUserById: (userId: string) => Promise<any>, payload: JwtPayload,
+    public validateJwtStrategy = async(fetchIUserById: (userId: string) => Promise<any>, payload: JwtPayload,
                                      done: (error: any, user?: any, info?: any) => void,
                                      hashedPassword: string, salt: any, plainPassword: any,
                                      algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
-                                     encode: BufferEncoding | undefined): Promise<any> {
+                                     encode: BufferEncoding | undefined): Promise<any> => {
         const statusNotFound: number = constants.HTTP_STATUS_NOT_FOUND
         try {
             let user;
@@ -180,7 +186,7 @@ export class PassportStrategy {
      * @param encode 
      * @returns 
      */
-    public async useLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>,
+    public useLocalStrategyByEmail = async(fetchUserByEmail: (email: string) => Promise<any>,
                                          email: string,
                                          hashedPassword: string,
                                          done: (error: any, user?: any, info?: any) => void,
@@ -188,8 +194,8 @@ export class PassportStrategy {
                                          algorithmHash: HashAlgorithmType,
                                          iteration: number,
                                          keyLength: number,
-                                         encode: BufferEncoding | undefined) {
-        return PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
+                                         encode: BufferEncoding | undefined)=> {
+        PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
             LocalStrategy,
             {
@@ -225,7 +231,7 @@ export class PassportStrategy {
      * @param keyLength
      * @param encode
      */
-    public async useLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>,
+    public useLocalStrategyByUsername = async(fetchUserByUsername: (username: string) => Promise<any>,
                                             username: string,
                                             hashedPassword: string,
                                             done: (error: any, user?: any, info?: any) => void,
@@ -234,8 +240,8 @@ export class PassportStrategy {
                                             algorithmHash: HashAlgorithmType,
                                             iteration: number,
                                             keyLength: number,
-                                            encode: BufferEncoding | undefined) {
-        return PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
+                                            encode: BufferEncoding | undefined)=> {
+        PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
             LocalStrategy,
             {
