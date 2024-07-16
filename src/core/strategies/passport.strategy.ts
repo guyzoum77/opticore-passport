@@ -84,13 +84,7 @@ export class PassportStrategy {
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, user); })();
         }).catch((err: any): void => {
-            this.catchError(
-                err,
-                msg.localStrategyUserNotFound,
-                (error, user, info) => {
-                    info.toString()
-                }
-            );
+            this.catchError(err, msg.localStrategyUserNotFound, done);
         });
     }
 
@@ -122,13 +116,7 @@ export class PassportStrategy {
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, item); })();
         }).catch((err: any): void => {
-            this.catchError(
-                err,
-                msg.localStrategyUserNotFound,
-                (error, user, info) => {
-                    info.toString()
-                }
-            );
+            this.catchError(err, msg.localStrategyUserNotFound, done);
         });
     }
 
@@ -168,13 +156,7 @@ export class PassportStrategy {
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, user); })();
         } catch (err: any) {
-            this.catchError(
-                err,
-                msg.jwtStrategyUserNotFound,
-                (error, user, info) => {
-                    info.toString()
-                }
-            );
+            this.catchError(err, msg.jwtStrategyUserNotFound, done);
         }
     }
 
