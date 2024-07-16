@@ -51,9 +51,9 @@ export class PassportStrategy {
      * @param done
      * @protected
      */
-    protected catchError(err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void) {
+    protected catchError(err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void): void {
         log.errorSpecified(msg.passportError, actionTitle, err.name, err.code, "Error", err.message, this.errorCode);
-        return done(null, false, { message: err.message });
+        done(null, false, { message: err.message });
     }
 
    
@@ -80,9 +80,11 @@ export class PassportStrategy {
                 return done(null, false, { message: msg.userNotFound });
             }
             const passwordVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
-            !passwordVerified
-                ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
-                : (() => { return done(null, user); })();
+            if(!passwordVerified) {
+                return done(null, false, { message: msg.wrongPassword });
+            }
+
+            return done(null, user);
         }).catch((err: any): void => {
             this.catchError(err, msg.localStrategyUserNotFound, done);
         });
@@ -111,10 +113,12 @@ export class PassportStrategy {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-            const verifyPassword: boolean = !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
-            !verifyPassword
-                ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
-                : (() => { return done(null, item); })();
+            const verifyPassword: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            if (!verifyPassword) {
+                return done(null, false, { message: msg.wrongPassword });
+            }
+
+            return done(null, item);
         }).catch((err: any): void => {
             this.catchError(err, msg.localStrategyUserNotFound, done);
         });
@@ -152,9 +156,10 @@ export class PassportStrategy {
             }
 
             const passVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
-            !passVerified
-                ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
-                : (() => { return done(null, user); })();
+            if (!passVerified) {
+                return done(null, false, { message: msg.wrongPassword });
+            }
+            return done(null, user);
         } catch (err: any) {
             this.catchError(err, msg.jwtStrategyUserNotFound, done);
         }
