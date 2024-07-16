@@ -55,39 +55,55 @@ export class PassportStrategy {
         return done(null, false, { message: err.message });
     }
 
+   
     /**
-     *
-     * @param fetchUserByEmail
+     * 
+     * @param fetchUserByEmail 
      * @param email
      * @param hashedPassword
-     * @param done
-     * @param salt
-     * @param plainPassword
-     * @param algorithmHash
-     * @param iteration
-     * @param keyLength
-     * @param encode
-     *
-     * Return
+     * @param done 
+     * @param salt 
+     * @param plainPassword 
+     * @param algorithmHash 
+     * @param iteration 
+     * @param keyLength 
+     * @param encode 
      */
-    public async validateLocalStrategy(fetchUserByEmail: (email: string) => Promise<any>, email: string,
-                                       hashedPassword: string, done: any, salt: any, plainPassword: any,
-                                       algorithmHash: any, iteration: number, keyLength: number,
-                                       encode: BufferEncoding | undefined): Promise<any> {
+    public async validateLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
+                                              hashedPassword: string, done: any, salt: any, plainPassword: any,
+                                              algorithmHash: any, iteration: number, keyLength: number,
+                                              encode: BufferEncoding | undefined): Promise<any> {
         await fetchUserByEmail(email).then(async(user: any): Promise<any> => {
             if (!user) {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-
             !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode)
                 ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
                 : (() => { return done(null, user); })();
-
         }).catch((err: any): void => {
             this.catchError(err, msg.localStrategyUserNotFound, this.errorCode);
         });
     }
+
+
+    public async validateLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>, username: string,
+                                                 hashedPassword: string, done: any, salt: any, plainPassword: any,
+                                                 algorithmHash: any, iteration: number, keyLength: number,
+                                                 encode: BufferEncoding | undefined): Promise<any> {
+        await fetchUserByUsername(username).then(async(item: any): Promise<any> => {
+            if (!item) {
+                log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
+                return done(null, false, { message: msg.userNotFound });
+            }
+            !await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode)
+                ? (() => { return done(null, false, { message: msg.wrongPassword }); })()
+                : (() => { return done(null, item); })();
+        }).catch((err: any): void => {
+            this.catchError(err, msg.localStrategyUserNotFound, this.errorCode);
+        });
+    }
+
 
 
     /**
@@ -142,7 +158,7 @@ export class PassportStrategy {
      * @param encode 
      * @returns 
      */
-    public async useLocalStrategy(fetchUserByEmail: (email: string) => Promise<any>, email: string,
+    public async useLocalStrategyByEmail(fetchUserByEmail: (email: string) => Promise<any>, email: string,
                                   hashedPassword: string, done: any, salt: any, plainPassword: any,
                                   algorithmHash: any, iteration: number, keyLength: number,
                                   encode: BufferEncoding | undefined) {
@@ -150,12 +166,52 @@ export class PassportStrategy {
             "local",
             LocalStrategy,
             {
+                email: process.env.PASSPORT_EMAIL,
+                password: process.env.PASSPORT_PASSWORD
+            },
+            await this.validateLocalStrategyByEmail(
+                fetchUserByEmail,
+                email,
+                hashedPassword,
+                done,
+                salt,
+                plainPassword,
+                algorithmHash,
+                iteration,
+                keyLength,
+                encode
+            )
+        );
+    }
+
+
+    /**
+     *
+     * @param fetchUserByUsername
+     * @param username
+     * @param hashedPassword
+     * @param done
+     * @param salt
+     * @param plainPassword
+     * @param algorithmHash
+     * @param iteration
+     * @param keyLength
+     * @param encode
+     */
+    public async useLocalStrategyByUsername(fetchUserByUsername: (username: string) => Promise<any>, username: string,
+                                         hashedPassword: string, done: any, salt: any, plainPassword: any,
+                                         algorithmHash: any, iteration: number, keyLength: number,
+                                         encode: BufferEncoding | undefined) {
+        return PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
+            "local",
+            LocalStrategy,
+            {
                 username: process.env.PASSPORT_USERNAME,
                 password: process.env.PASSPORT_PASSWORD
             },
-            await this.validateLocalStrategy(
-                fetchUserByEmail,
-                email,
+            await this.validateLocalStrategyByUsername(
+                fetchUserByUsername,
+                username,
                 hashedPassword,
                 done,
                 salt,
@@ -201,7 +257,7 @@ export class PassportStrategy {
                 secretOrKey: this.publicRSAKeyPair,
             },
             async (payload: JwtPayload, done: any) : Promise<any> => {
-                this.validateJwtStrategy(
+                await this.validateJwtStrategy(
                     fetchIUserById,
                     payload,
                     done,
