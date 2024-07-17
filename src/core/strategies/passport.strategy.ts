@@ -16,7 +16,7 @@ import {HashAlgorithmType} from "../types/hashAlgorithm.type";
  *
  */
 export class PassportStrategy {
-    private hashingService: HashPasswordService = new HashPasswordService();
+    private hashingService: HashPasswordService;
     private errorCode: number = constants.HTTP_STATUS_BAD_REQUEST;
     private readonly publicRSAKeyPair: string;
 
