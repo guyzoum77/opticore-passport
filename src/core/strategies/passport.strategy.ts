@@ -16,12 +16,10 @@ import {HashAlgorithmType} from "../types/hashAlgorithm.type";
  *
  */
 export class PassportStrategy {
-    private hashingService: HashPasswordService;
     private errorCode: number = constants.HTTP_STATUS_BAD_REQUEST;
     private readonly publicRSAKeyPair: string;
 
-    constructor(hashPasswordService: HashPasswordService, publicRSAKey: string) {
-        this.hashingService   = hashPasswordService;
+    constructor(publicRSAKey: string) {
         this.publicRSAKeyPair = publicRSAKey
     }
 
@@ -39,7 +37,8 @@ export class PassportStrategy {
     protected async verifyHashPassword(hashedPassword: string, salt: any, plainPassword: any,
                                    algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
                                    encode: BufferEncoding | undefined): Promise<boolean> {
-        return await this.hashingService.verifyHashPassword(
+        const hashingService: HashPasswordService = new HashPasswordService();
+        return await hashingService.verifyHashPassword(
             hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode
         );
     }
