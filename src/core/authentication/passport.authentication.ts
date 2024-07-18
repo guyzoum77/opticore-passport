@@ -14,7 +14,7 @@ export class PassportAuthentication {
                                        hashedPassword: string, done: any, salt: any, plainPassword: any,
                                        algorithmHash: any, iteration: number, keyLength: number,
                                        encode: BufferEncoding | undefined) {
-        const passportStr: PassportStrategy = new PassportStrategy(this.hashingService, this.publicRSAKeyPair);
+        const passportStr: PassportStrategy = new PassportStrategy(this.publicRSAKeyPair);
         passportStr.useLocalStrategyByEmail(
             fetchUserByEmail,
             email,

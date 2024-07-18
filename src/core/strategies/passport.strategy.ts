@@ -39,7 +39,13 @@ export class PassportStrategy {
                                    encode: BufferEncoding | undefined): Promise<boolean> {
         const hashingService: HashPasswordService = new HashPasswordService();
         return await hashingService.verifyHashPassword(
-            hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode
+            hashedPassword,
+            salt,
+            plainPassword,
+            algorithmHash,
+            iteration,
+            keyLength,
+            encode
         );
     }
 
@@ -49,7 +55,9 @@ export class PassportStrategy {
      * @param actionTitle
      * @param done
      */
-    protected catchError = (err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void): void => {
+    protected catchError = (err: any,
+                            actionTitle: any,
+                            done: (error: any, user?: any, info?: any) => void): void => {
         log.errorSpecified(msg.passportError, actionTitle, err.name, err.code, "Error", err.message, this.errorCode);
         done(null, false, { message: err.message });
     }
@@ -69,16 +77,30 @@ export class PassportStrategy {
      * @param keyLength 
      * @param encode 
      */
-    public validateLocalStrategyByEmail = async(fetchUserByEmail: (email: string) => Promise<any>, email: string,
-                                              hashedPassword: string, done: (error: any, user?: any, info?: any) => void, salt: any, plainPassword: any,
-                                              algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
-                                              encode: BufferEncoding | undefined): Promise<any> => {
+    public validateLocalStrategyByEmail = async(fetchUserByEmail: (email: string) => Promise<any>,
+                                                email: string,
+                                                hashedPassword: string,
+                                                done: (error: any, user?: any, info?: any) => void,
+                                                salt: string,
+                                                plainPassword: any,
+                                                algorithmHash: HashAlgorithmType,
+                                                iteration: number,
+                                                keyLength: number,
+                                                encode: BufferEncoding | undefined): Promise<any> => {
         await fetchUserByEmail(email).then(async(user: any): Promise<any> => {
             if (!user) {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-            const passwordVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            const passwordVerified: boolean = await this.verifyHashPassword(
+                hashedPassword,
+                salt,
+                plainPassword,
+                algorithmHash,
+                iteration,
+                keyLength,
+                encode
+            );
             if(!passwordVerified) {
                 return done(null, false, { message: msg.wrongPassword });
             }
@@ -118,7 +140,15 @@ export class PassportStrategy {
                 log.error(msg.passportError, msg.localStrategyUserNotFound, msg.userNotFound, constants.HTTP_STATUS_NOT_FOUND);
                 return done(null, false, { message: msg.userNotFound });
             }
-            const verifyPassword: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            const verifyPassword: boolean = await this.verifyHashPassword(
+                hashedPassword,
+                salt,
+                plainPassword,
+                algorithmHash,
+                iteration,
+                keyLength,
+                encode
+            );
             if (!verifyPassword) {
                 return done(null, false, { message: msg.wrongPassword });
             }
@@ -144,11 +174,16 @@ export class PassportStrategy {
      * @param keyLength
      * @param encode
      */
-    public validateJwtStrategy = async(fetchIUserById: (userId: string) => Promise<any>, payload: JwtPayload,
-                                     done: (error: any, user?: any, info?: any) => void,
-                                     hashedPassword: string, salt: any, plainPassword: any,
-                                     algorithmHash: HashAlgorithmType, iteration: number, keyLength: number,
-                                     encode: BufferEncoding | undefined): Promise<any> => {
+    public validateJwtStrategy = async(fetchIUserById: (userId: string) => Promise<any>,
+                                       payload: JwtPayload,
+                                       done: (error: any, user?: any, info?: any) => void,
+                                       hashedPassword: string,
+                                       salt: any,
+                                       plainPassword: any,
+                                       algorithmHash: HashAlgorithmType,
+                                       iteration: number,
+                                       keyLength: number,
+                                       encode: BufferEncoding | undefined): Promise<any> => {
         const statusNotFound: number = constants.HTTP_STATUS_NOT_FOUND
         try {
             let user;
@@ -160,7 +195,15 @@ export class PassportStrategy {
                 user = await fetchIUserById(payload.sub!);
             }
 
-            const passVerified: boolean = await this.verifyHashPassword(hashedPassword, salt, plainPassword, algorithmHash, iteration, keyLength, encode);
+            const passVerified: boolean = await this.verifyHashPassword(
+                hashedPassword,
+                salt,
+                plainPassword,
+                algorithmHash,
+                iteration,
+                keyLength,
+                encode
+            );
             if (!passVerified) {
                 return done(null, false, { message: msg.wrongPassword });
             }
@@ -186,21 +229,19 @@ export class PassportStrategy {
      * @returns 
      */
     public useLocalStrategyByEmail = async(fetchUserByEmail: (email: string) => Promise<any>,
-                                         email: string,
-                                         hashedPassword: string,
-                                         done: (error: any, user?: any, info?: any) => void,
-                                         salt: any, plainPassword: any,
-                                         algorithmHash: HashAlgorithmType,
-                                         iteration: number,
-                                         keyLength: number,
-                                         encode: BufferEncoding | undefined)=> {
+                                           email: string,
+                                           hashedPassword: string,
+                                           done: (error: any, user?: any, info?: any) => void,
+                                           salt: any,
+                                           plainPassword: any,
+                                           algorithmHash: HashAlgorithmType,
+                                           iteration: number,
+                                           keyLength: number,
+                                           encode: BufferEncoding | undefined)=> {
         PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
             LocalStrategy,
-            {
-                email: email,
-                password: plainPassword
-            },
+            { email: email, password: plainPassword },
             await this.validateLocalStrategyByEmail(
                 fetchUserByEmail,
                 email,
@@ -231,22 +272,19 @@ export class PassportStrategy {
      * @param encode
      */
     public useLocalStrategyByUsername = async(fetchUserByUsername: (username: string) => Promise<any>,
-                                            username: string,
-                                            hashedPassword: string,
-                                            done: (error: any, user?: any, info?: any) => void,
-                                            salt: any,
-                                            plainPassword: any,
-                                            algorithmHash: HashAlgorithmType,
-                                            iteration: number,
-                                            keyLength: number,
-                                            encode: BufferEncoding | undefined)=> {
+                                              username: string,
+                                              hashedPassword: string,
+                                              done: (error: any, user?: any, info?: any) => void,
+                                              salt: any,
+                                              plainPassword: any,
+                                              algorithmHash: HashAlgorithmType,
+                                              iteration: number,
+                                              keyLength: number,
+                                              encode: BufferEncoding | undefined)=> {
         PassportLocalStrategyUse<LocalStrategy, Object, VerifyLocalStrategyInterface>(
             "local",
             LocalStrategy,
-            {
-                username: username,
-                password: plainPassword
-            },
+            { username: username, password: plainPassword },
             await this.validateLocalStrategyByUsername(
                 fetchUserByUsername,
                 username,
@@ -287,27 +325,29 @@ export class PassportStrategy {
                           iteration: number,
                           keyLength: number,
                           encode: (BufferEncoding | undefined)) {
-        return PassportJWTStrategyUse<JwtStr, StrategyOptionsWithSecret, (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) => Promise<JwtPayload>>(
-            "jwt", 
-            JwtStr,
-            {
-                jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-                secretOrKey: this.publicRSAKeyPair,
-            },
-            async (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) : Promise<any> => {
-                await this.validateJwtStrategy(
-                    fetchIUserById,
-                    payload,
-                    done,
-                    hashedPassword,
-                    salt,
-                    plainPassword,
-                    algorithmHash,
-                    iteration,
-                    keyLength,
-                    encode
-                )
-            }
-        );
+        return PassportJWTStrategyUse<JwtStr,
+            StrategyOptionsWithSecret,
+            (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) => Promise<JwtPayload>>(
+                "jwt",
+                JwtStr,
+                {
+                    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+                    secretOrKey: this.publicRSAKeyPair,
+                },
+                async (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) : Promise<any> => {
+                    await this.validateJwtStrategy(
+                        fetchIUserById,
+                        payload,
+                        done,
+                        hashedPassword,
+                        salt,
+                        plainPassword,
+                        algorithmHash,
+                        iteration,
+                        keyLength,
+                        encode
+                    )
+                }
+            );
     }
 }
