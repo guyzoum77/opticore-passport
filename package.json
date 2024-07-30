@@ -1,6 +1,6 @@
 {
   "name": "opticore-passport",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "authentication by multiple strategies",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
