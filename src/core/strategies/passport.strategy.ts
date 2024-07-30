@@ -55,9 +55,7 @@ export class PassportStrategy {
      * @param actionTitle
      * @param done
      */
-    protected catchError = (err: any,
-                            actionTitle: any,
-                            done: (error: any, user?: any, info?: any) => void): void => {
+    protected catchError = (err: any, actionTitle: any, done: (error: any, user?: any, info?: any) => void): void => {
         log.errorSpecified(msg.passportError, actionTitle, err.name, err.code, "Error", err.message, this.errorCode);
         done(null, false, { message: err.message });
     }
@@ -303,9 +301,7 @@ export class PassportStrategy {
 
     /**
      * 
-     * @param fetchIUserById 
-     * @param payload 
-     * @param done 
+     * @param fetchIUserById
      * @param hashedPassword 
      * @param salt 
      * @param plainPassword 
@@ -316,8 +312,6 @@ export class PassportStrategy {
      * @returns 
      */
     public useJwtStrategy(fetchIUserById: (userId: string) => Promise<any>,
-                          payload: JwtPayload,
-                          done: (error: any, user?: any, info?: any) => void,
                           hashedPassword: string,
                           salt: any,
                           plainPassword: any,
@@ -325,29 +319,31 @@ export class PassportStrategy {
                           iteration: number,
                           keyLength: number,
                           encode: (BufferEncoding | undefined)) {
-        return PassportJWTStrategyUse<JwtStr,
+        return PassportJWTStrategyUse<
+            JwtStr,
             StrategyOptionsWithSecret,
-            (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) => Promise<JwtPayload>>(
-                "jwt",
-                JwtStr,
-                {
-                    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-                    secretOrKey: this.publicRSAKeyPair,
-                },
-                async (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) : Promise<any> => {
-                    await this.validateJwtStrategy(
-                        fetchIUserById,
-                        payload,
-                        done,
-                        hashedPassword,
-                        salt,
-                        plainPassword,
-                        algorithmHash,
-                        iteration,
-                        keyLength,
-                        encode
-                    )
-                }
-            );
+            (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) => Promise<JwtPayload>
+        >(
+            "jwt",
+            JwtStr,
+            {
+                jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+                secretOrKey: this.publicRSAKeyPair,
+            },
+            async (payload: JwtPayload, done: (error: any, user?: any, info?: any) => void) : Promise<any> => {
+                await this.validateJwtStrategy(
+                    fetchIUserById,
+                    payload,
+                    done,
+                    hashedPassword,
+                    salt,
+                    plainPassword,
+                    algorithmHash,
+                    iteration,
+                    keyLength,
+                    encode
+                )
+            }
+        );
     }
 }
