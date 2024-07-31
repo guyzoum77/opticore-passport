@@ -1,11 +1,7 @@
 import passport, {Strategy} from "passport";
 
-type TypeStrategy<T, U, VerifyFunction> = { new (params: U, callback: VerifyFunction): T}
+type TypeStrategy<T, U, X> = { new (params: U, callback: X): T}
 
-export function PassportJWTStrategyUse<T extends Strategy, U, VerifyFunction>(
-    name: string, 
-    Strategy: TypeStrategy<T, U, VerifyFunction>, 
-    params: U, 
-    callback: VerifyFunction) {
+export function PassportJWTStrategyUse<T extends Strategy, U, X>(name: string, Strategy: TypeStrategy<T, U, X>, params: U, callback: X) {
     passport.use(name, new Strategy(params, callback));
 }
